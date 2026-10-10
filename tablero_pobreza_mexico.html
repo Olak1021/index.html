@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tablero de pobreza en México 2008-2018</title>
+
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <style>
+    :root {
+      --navy: #17324d;
+      --blue: #2878a5;
+      --teal: #27877b;
+      --orange: #dc8750;
+      --bg: #f3f6fa;
+      --text: #243447;
+      --muted: #627386;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+    }
+
+    header {
+      background: var(--navy);
+      color: white;
+      padding: 34px 6%;
+    }
+
+    header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 4vw, 36px);
+    }
+
+    header p { max-width: 850px; margin-bottom: 0; }
+
+    main {
+      max-width: 1440px;
+      margin: auto;
+      padding: 24px;
+    }
+
+    .intro {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 22px;
+      box-shadow: 0 2px 12px #1b36500b;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .kpi, .panel {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 12px #1b36500b;
+      min-width: 0;
+    }
+
+    .kpi span { color: var(--muted); font-size: 14px; }
+    .kpi strong {
+      display: block;
+      font-size: 30px;
+      color: var(--navy);
+      margin-top: 6px;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .panel h2 {
+      font-size: 19px;
+      line-height: 1.4;
+      margin: 0 0 8px;
+      color: var(--navy);
+    }
+
+    .panel p { font-size: 14px; color: var(--muted); }
+
+    .chart {
+      width: 100%;
+      height: 340px;
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #e3e9ef;
+    }
+
+    th { background: #eef3f8; }
+
+    .source {
+      font-size: 13px;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    footer {
+      padding: 26px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 800px) {
+      main { padding: 14px; }
+      .dashboard, .kpis { grid-template-columns: 1fr; }
+      .wide { grid-column: auto; }
+      .chart { height: 320px; }
+    }
+
+    @media print {
+      body { background: white; }
+      .panel, .kpi { box-shadow: none; border: 1px solid #ddd; }
+    }
+  </style>
+
+  <script>
+    google.charts.load('current', { packages: ['corechart', 'bar'] });
+    google.charts.setOnLoadCallback(drawCharts);
+
+    function drawCharts() {
+      const common = {
+        fontName: 'Arial',
+        backgroundColor: 'transparent',
+        chartArea: { left: 65, top: 35, width: '82%', height: '72%' },
+        legend: { position: 'bottom' },
+        animation: { startup: true, duration: 500, easing: 'out' }
+      };
+
+      // 1. Evolución porcentual: líneas
+      const povertyRate = google.visualization.arrayToDataTable([
+        ['Año', 'Pobreza (%)', 'Pobreza extrema (%)'],
+        ['2008', 44.4, 11.0],
+        ['2010', 46.1, 11.3],
+        ['2012', 45.5, 9.8],
+        ['2014', 46.2, 9.5],
+        ['2016', 43.6, 7.6],
+        ['2018', 41.9, 7.4]
+      ]);
+
+      new google.visualization.LineChart(
+        document.getElementById('chart1')
+      ).draw(povertyRate, {
+        ...common,
+        title: 'Evolución de la pobreza en México',
+        hAxis: { title: 'Año' },
+        vAxis: { title: 'Porcentaje de la población', minValue: 0 },
+        colors: ['#2878a5', '#dc8750'],
+        pointSize: 6,
+        lineWidth: 3
+      });
+
+      // 2. Número de personas: columnas agrupadas
+      const povertyCount = google.visualization.arrayToDataTable([
+        ['Año', 'Pobreza (millones)', 'Pobreza extrema (millones)'],
+        ['2008', 49.5, 12.3],
+        ['2010', 52.8, 13.0],
+        ['2012', 53.3, 11.5],
+        ['2014', 55.3, 11.4],
+        ['2016', 53.4, 9.4],
+        ['2018', 52.4, 9.3]
+      ]);
+
+      new google.visualization.ColumnChart(
+        document.getElementById('chart2')
+      ).draw(povertyCount, {
+        ...common,
+        title: 'Personas en situación de pobreza',
+        hAxis: { title: 'Año' },
+        vAxis: { title: 'Millones de personas', minValue: 0 },
+        colors: ['#2878a5', '#dc8750'],
+        bar: { groupWidth: '65%' }
+      });
+
+      // 3. Carencias sociales: barras horizontales
+      const deprivations = google.visualization.arrayToDataTable([
+        ['Carencia social', '2008 (%)', '2018 (%)'],
+        ['Rezago educativo', 21.9, 16.9],
+        ['Acceso a salud', 38.4, 16.2],
+        ['Seguridad social', 65.0, 57.3],
+        ['Calidad y espacios de vivienda', 17.7, 11.1],
+        ['Servicios básicos de vivienda', 22.9, 19.8],
+        ['Acceso a alimentación', 21.7, 20.4]
+      ]);
+
+      new google.visualization.BarChart(
+        document.getElementById('chart3')
+      ).draw(deprivations, {
+        ...common,
+        title: 'Carencias sociales: 2008 frente a 2018',
+        chartArea: { left: 175, top: 35, width: '68%', height: '70%' },
+        hAxis: {
+          title: 'Población con la carencia (%)',
+          minValue: 0,
+          maxValue: 70
+        },
+        colors: ['#9aafc1', '#27877b'],
+        bar: { groupWidth: '70%' }
+      });
+
+      // 4. Distribución de categorías: circular
+      const populationGroups = google.visualization.arrayToDataTable([
+        ['Categoría', 'Porcentaje'],
+        ['Pobreza', 41.9],
+        ['Vulnerable por carencias sociales', 29.3],
+        ['Vulnerable por ingresos', 7.0],
+        ['No pobre y no vulnerable', 21.9]
+      ]);
+
+      new google.visualization.PieChart(
+        document.getElementById('chart4')
+      ).draw(populationGroups, {
+        ...common,
+        title: 'Situación de la población en 2018',
+        pieHole: 0.38,
+        pieSliceText: 'percentage',
+        chartArea: { left: 10, top: 35, width: '95%', height: '78%' },
+        colors: ['#2878a5', '#dc8750', '#e8c66a', '#27877b'],
+        tooltip: { text: 'both' }
+      });
+
+      // 5. Comparación territorial: columnas agrupadas
+      const states = google.visualization.arrayToDataTable([
+        ['Entidad', '2008 (%)', '2018 (%)'],
+        ['Chiapas', 77.0, 76.4],
+        ['Guerrero', 68.4, 66.5],
+        ['Oaxaca', 61.8, 66.4],
+        ['Veracruz', 51.2, 61.8]
+      ]);
+
+      new google.visualization.ColumnChart(
+        document.getElementById('chart5')
+      ).draw(states, {
+        ...common,
+        title: 'Pobreza por entidad federativa',
+        hAxis: { title: 'Entidad federativa' },
+        vAxis: {
+          title: 'Población en situación de pobreza (%)',
+          minValue: 0,
+          maxValue: 100
+        },
+        colors: ['#9aafc1', '#2878a5'],
+        bar: { groupWidth: '65%' }
+      });
+    }
+
+    // Redibuja los gráficos cuando cambia el tamaño de pantalla.
+    window.addEventListener('resize', () => {
+      if (google.visualization) drawCharts();
+    });
+  </script>
+</head>
+
+<body>
+<header>
+  <h1>La pobreza en México: 2008–2018</h1>
+  <p>Tablero de visualización de indicadores de pobreza multidimensional,
+     carencias sociales y desigualdad territorial.</p>
+</header>
+
+<main>
+  <section class="intro">
+    <h2>Objetivo del tablero</h2>
+    <p>
+      Examinar los cambios en la pobreza y la pobreza extrema durante diez
+      años, comparar las carencias sociales e identificar diferencias
+      territoriales. Los gráficos se construyen con Google Charts.
+    </p>
+    <p class="source">
+      Fuente principal: CONEVAL (2019), “10 años de medición de pobreza
+      en México, avances y retos en política social”.
+      <a href="https://www.coneval.org.mx/SalaPrensa/Comunicadosprensa/Documents/2019/COMUNICADO_10_MEDICION_POBREZA_2008_2018.pdf"
+         target="_blank" rel="noopener">Consultar documento original</a>.
+    </p>
+  </section>
+
+  <section class="kpis">
+    <div class="kpi">
+      <span>Pobreza en 2018</span>
+      <strong>41.9%</strong>
+      <span>De la población nacional</span>
+    </div>
+    <div class="kpi">
+      <span>Pobreza extrema en 2018</span>
+      <strong>7.4%</strong>
+      <span>De la población nacional</span>
+    </div>
+    <div class="kpi">
+      <span>Personas en pobreza en 2018</span>
+      <strong>52.4 millones</strong>
+      <span>Frente a 49.5 millones en 2008</span>
+    </div>
+  </section>
+
+  <section class="dashboard">
+    <article class="panel">
+      <h2>1. Evolución porcentual</h2>
+      <div id="chart1" class="chart"></div>
+      <p>El gráfico de líneas facilita identificar las tendencias de
+         pobreza y pobreza extrema a través del tiempo.</p>
+    </article>
+
+    <article class="panel">
+      <h2>2. Número de personas afectadas</h2>
+      <div id="chart2" class="chart"></div>
+      <p>Las columnas comparan las magnitudes absolutas de ambos
+         indicadores en cada año.</p>
+    </article>
+
+    <article class="panel">
+      <h2>3. Evolución de las carencias sociales</h2>
+      <div id="chart3" class="chart"></div>
+      <p>Las barras horizontales muestran la variación entre 2008 y
+         2018 para seis carencias sociales.</p>
+    </article>
+
+    <article class="panel">
+      <h2>4. Distribución por situación social</h2>
+      <div id="chart4" class="chart"></div>
+      <p>El gráfico circular presenta las cuatro categorías de la
+         población consideradas en la medición.</p>
+      <p class="source">Cifras redondeadas; verificar contra el anexo
+         estadístico oficial antes de publicar.</p>
+    </article>
+
+    <article class="panel wide">
+      <h2>5. Comparación territorial</h2>
+      <div id="chart5" class="chart"></div>
+      <p>La comparación estatal evidencia diferencias en la evolución
+         de la pobreza en el sureste mexicano.</p>
+    </article>
+  </section>
+
+  <section class="panel" style="margin-top:20px">
+    <h2>Resumen de los hallazgos</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Indicador</th>
+            <th>2008</th>
+            <th>2018</th>
+            <th>Interpretación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Pobreza</td>
+            <td>44.4%</td>
+            <td>41.9%</td>
+            <td>Disminución porcentual</td>
+          </tr>
+          <tr>
+            <td>Pobreza extrema</td>
+            <td>11.0%</td>
+            <td>7.4%</td>
+            <td>Disminución porcentual</td>
+          </tr>
+          <tr>
+            <td>Personas en pobreza</td>
+            <td>49.5 millones</td>
+            <td>52.4 millones</td>
+            <td>Aumento en cantidad absoluta</td>
+          </tr>
+          <tr>
+            <td>Carencia de seguridad social</td>
+            <td>65.0%</td>
+            <td>57.3%</td>
+            <td>Sigue siendo una carencia importante</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="intro" style="margin-top:20px">
+    <h2>Nota metodológica</h2>
+    <p>
+      Las cifras corresponden a la serie histórica 2008–2018 publicada
+      por CONEVAL en 2019. Para fines académicos, deben verificarse
+      los valores intermedios y las categorías del gráfico circular
+      contra el anexo estadístico original. No mezclar esta serie con
+      mediciones posteriores que utilizan una metodología actualizada.
+    </p>
+  </section>
+</main>
+
+<footer>
+  Proyecto académico de visualización de datos · Google Charts ·
+  Fuente estadística: CONEVAL, 2019
+</footer>
+</body>
+</html>
